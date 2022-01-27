@@ -14,4 +14,25 @@
     <name>Image</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.0-alpha6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/auth -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <version>2.17.116</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/rekognition -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>rekognition</artifactId>
+            <version>2.17.116</version>
+        </dependency>
+    </dependencies>
 </project>

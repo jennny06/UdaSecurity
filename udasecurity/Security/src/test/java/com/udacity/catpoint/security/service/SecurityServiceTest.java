@@ -36,13 +36,13 @@ public class SecurityServiceTest {
     @Mock
     private StatusListener statusListener;
 
-    private Set<Sensor> createSensors(int numberOfSensors) {
+    private Set<Sensor> createSensors(int numberOfSensors, boolean active) {
         Set<Sensor> sensors = new HashSet<>();
 
         for (int i = 0; i < numberOfSensors; i++) {
             sensors.add(new Sensor("sensor#"+Integer.toString(i), SensorType.DOOR));
         }
-
+        sensors.forEach(sensor1 -> sensor1.setActive(active));
         return sensors;
     }
 
@@ -105,6 +105,7 @@ public class SecurityServiceTest {
         verify(securityRepository, never()).setAlarmStatus(any());
     }
 
+    // Test 7
     @Test
     public void processImage_hasCat_armed_returnAlarmOn() {
         BufferedImage image = new BufferedImage(1,1,1);
@@ -115,9 +116,12 @@ public class SecurityServiceTest {
         verify(securityRepository).setAlarmStatus(AlarmStatus.ALARM);
     }
 
+    // Test 8
     @Test
     public void processImage_noCat_sensorInactive_returnNoAlarm() {
+        Set<Sensor> sensors = createSensors(3, false);
         BufferedImage image = new BufferedImage(1,1,1);
+        when(securityRepository.getSensors()).thenReturn(sensors);
         when(imageService.imageContainsCat(any(), anyFloat())).thenReturn(false);
         securityService.processImage(image);
 
@@ -136,8 +140,9 @@ public class SecurityServiceTest {
     @ParameterizedTest
     @EnumSource(value = ArmingStatus.class, names = {"ARMED_HOME", "ARMED_AWAY"})
     public void setArmingStatus_armed_returnSensorsInactive(ArmingStatus armingStatus) {
-        Set<Sensor> sensors = createSensors(3);
+        Set<Sensor> sensors = createSensors(3, true);
         when(securityRepository.getSensors()).thenReturn(sensors);
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         securityService.setArmingStatus(armingStatus);
 
         securityRepository.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
