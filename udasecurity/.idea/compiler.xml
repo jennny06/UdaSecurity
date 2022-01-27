@@ -11,9 +11,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Image" target="1.7" />
-      <module name="Security" target="1.7" />
-      <module name="udasecurity" target="1.7" />
+      <module name="Image" target="14" />
+      <module name="Security" target="14" />
+      <module name="udasecurity" target="14" />
     </bytecodeTargetLevel>
   </component>
 </project>
