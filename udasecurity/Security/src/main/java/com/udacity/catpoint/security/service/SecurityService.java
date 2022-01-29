@@ -40,12 +40,13 @@ public class SecurityService {
         if (hasCat && armingStatus == ArmingStatus.ARMED_HOME) {
             setAlarmStatus(AlarmStatus.ALARM);
         }
-        if(armingStatus == ArmingStatus.DISARMED) {
+        else if(armingStatus == ArmingStatus.DISARMED) {
             setAlarmStatus(AlarmStatus.NO_ALARM);
         }
         else {
             ConcurrentSkipListSet<Sensor> sensors = new ConcurrentSkipListSet<>(getSensors());
             sensors.forEach(sensor -> changeSensorActivationStatus(sensor, false));
+            statusListeners.forEach(statusListener -> statusListener.sensorStatusChanged());
         }
         securityRepository.setArmingStatus(armingStatus);
     }
