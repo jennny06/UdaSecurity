@@ -40,7 +40,7 @@ public class SecurityServiceTest {
         Set<Sensor> sensors = new HashSet<>();
 
         for (int i = 0; i < numberOfSensors; i++) {
-            sensors.add(new Sensor("sensor#"+Integer.toString(i), SensorType.DOOR));
+            sensors.add(new Sensor("sensor#"+i, SensorType.DOOR));
         }
         sensors.forEach(sensor1 -> sensor1.setActive(active));
         return sensors;
@@ -52,7 +52,7 @@ public class SecurityServiceTest {
         sensor = new Sensor("test", SensorType.DOOR);
     }
 
-    @Test
+    @Test  // 1 If alarm is armed and a sensor becomes activated, put the system into pending alarm status.
     public void changeSensorActivationStatus_armed_activated_setPendingAlarm() {
         when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
@@ -61,7 +61,7 @@ public class SecurityServiceTest {
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.PENDING_ALARM);
     }
 
-    @Test
+    @Test // 2 If alarm is armed and a sensor becomes activated and the system is already pending alarm, set the alarm status to alarm.
     public void changeSensorActivationStatus_armed_activated_pending_setAlarm() {
         when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
@@ -70,7 +70,7 @@ public class SecurityServiceTest {
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
     }
 
-    @Test
+    @Test //3.If pending alarm and all sensors are inactive, return to no alarm state.
     public void changeSensorActivationStatus_pending_inactive_setNoAlarm() {
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
@@ -80,8 +80,8 @@ public class SecurityServiceTest {
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
+    @ParameterizedTest // 4 If alarm is active, change in sensor state should not affect the alarm state.
+    @ValueSource(booleans = {true})
     public void changeSensorActivationStatus_alarmActive_changeSensor_returnAlarmNotAffected(boolean sensorStatus) {
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
         securityService.changeSensorActivationStatus(sensor, sensorStatus);
@@ -89,7 +89,7 @@ public class SecurityServiceTest {
         verify(securityRepository, never()).setAlarmStatus(any());
     }
 
-    @Test
+    @Test // 5 If a sensor is activated while already active and the system is in pending state, change it to alarm state.
     public void changeSensorActivationStatus_sensorActivated_activeSensor_pendingAlarm_returnAlarm() {
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         sensor.setActive(true);
@@ -98,7 +98,7 @@ public class SecurityServiceTest {
         verify(securityRepository).setAlarmStatus(AlarmStatus.ALARM);
     }
 
-    @Test
+    @Test // 6 If a sensor is deactivated while already inactive, make no changes to the alarm state.
     public void changeSensorActivationStatus_sensorInactive_deactivateSensor_returnAlarmNoChanges() {
         securityService.changeSensorActivationStatus(sensor, false);
 
@@ -106,7 +106,7 @@ public class SecurityServiceTest {
     }
 
     // Test 7
-    @Test
+    @Test // 7 If the image service identifies an image containing a cat while the system is armed-home, put the system into alarm status.
     public void processImage_hasCat_armed_returnAlarmOn() {
         BufferedImage image = new BufferedImage(1,1,1);
         when(imageService.imageContainsCat(any(), anyFloat())).thenReturn(true);
@@ -116,7 +116,7 @@ public class SecurityServiceTest {
         verify(securityRepository).setAlarmStatus(AlarmStatus.ALARM);
     }
 
-    // Test 8
+    // Test 8 If the image service identifies an image that does not contain a cat, change the status to no alarm as long as the sensors are not active.
     @Test
     public void processImage_noCat_sensorInactive_returnNoAlarm() {
         Set<Sensor> sensors = createSensors(3, false);
@@ -128,7 +128,7 @@ public class SecurityServiceTest {
         verify(securityRepository).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
 
-    // Test 9
+    // Test 9 If the system is disarmed, set the status to no alarm.
     @Test
     public void setArmingStatus_disarmed_returnNoAlarm() {
         securityService.setArmingStatus(ArmingStatus.DISARMED);
@@ -136,13 +136,13 @@ public class SecurityServiceTest {
         verify(securityRepository).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
 
-    // Test 10
+    // Test 10 If the system is armed, reset all sensors to inactive.
     @ParameterizedTest
     @EnumSource(value = ArmingStatus.class, names = {"ARMED_HOME", "ARMED_AWAY"})
     public void setArmingStatus_armed_returnSensorsInactive(ArmingStatus armingStatus) {
         Set<Sensor> sensors = createSensors(3, true);
         when(securityRepository.getSensors()).thenReturn(sensors);
-        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
         securityService.setArmingStatus(armingStatus);
 
         securityRepository.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
@@ -162,9 +162,8 @@ public class SecurityServiceTest {
 
     @Test
     public void changeSensorActivationStatus_deactivateSensor_setPendingAlarm() {
-        sensor.setActive(false);
+        sensor.setActive(true);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
         securityService.changeSensorActivationStatus(sensor, false);
 
         verify(securityRepository).setAlarmStatus(AlarmStatus.PENDING_ALARM);

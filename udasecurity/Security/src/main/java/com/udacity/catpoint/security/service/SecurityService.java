@@ -37,18 +37,20 @@ public class SecurityService {
      * @param armingStatus
      */
     public void setArmingStatus(ArmingStatus armingStatus) {
-        if (hasCat && armingStatus == ArmingStatus.ARMED_HOME) {
-            setAlarmStatus(AlarmStatus.ALARM);
-        }
-        else if(armingStatus == ArmingStatus.DISARMED) {
+
+        if(armingStatus == ArmingStatus.DISARMED) {
             setAlarmStatus(AlarmStatus.NO_ALARM);
         }
         else {
+            if (hasCat) {
+                setAlarmStatus(AlarmStatus.ALARM);
+            }
+
             ConcurrentSkipListSet<Sensor> sensors = new ConcurrentSkipListSet<>(getSensors());
             sensors.forEach(sensor -> changeSensorActivationStatus(sensor, false));
-            statusListeners.forEach(statusListener -> statusListener.sensorStatusChanged());
         }
         securityRepository.setArmingStatus(armingStatus);
+        statusListeners.forEach(statusListener -> statusListener.sensorStatusChanged());
     }
 
     /**
@@ -123,20 +125,35 @@ public class SecurityService {
      */
     public void changeSensorActivationStatus(Sensor sensor, Boolean active) {
 
-        if (getAlarmStatus() != AlarmStatus.ALARM) {
-            if(!sensor.getActive() && active) {
-                handleSensorActivated();
-            } else if (sensor.getActive() && !active) {
-                handleSensorDeactivated();
-            } else if (sensor.getActive() && active) {
-                handleSensorActivated();
-            }
-        }else {
-            if (getArmingStatus() == ArmingStatus.DISARMED) {
-                handleSensorDeactivated();
+        if (!sensor.getActive() && active) {
+            handleSensorActivated();
+        }
+        else if (sensor.getActive() && !active) {
+            handleSensorDeactivated();
+        }
+        else if (sensor.getActive() && active) {
+            if (getAlarmStatus() == AlarmStatus.PENDING_ALARM) {
+                setAlarmStatus(AlarmStatus.ALARM);
             }
         }
-
+//
+//        if (getAlarmStatus() != AlarmStatus.ALARM) {
+//            if(!sensor.getActive() && active) {
+//                handleSensorActivated();
+//            } else if (sensor.getActive() && !active) {
+//                handleSensorDeactivated();
+//            } else if (sensor.getActive() && active) {
+//                handleSensorActivated();
+//            }
+//        }else {
+//            if (getArmingStatus() == ArmingStatus.DISARMED) {
+//                handleSensorDeactivated();
+//            }
+//        }
+//
+//        if (getArmingStatus() == ArmingStatus.ARMED_HOME) {
+//            handleSensorDeactivated();
+//        }
         sensor.setActive(active);
         securityRepository.updateSensor(sensor);
     }

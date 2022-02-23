@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d9f96de3-396e-48cb-8bd2-d74093b3917c" name="Changes" comment="" />
+    <list default="true" id="d9f96de3-396e-48cb-8bd2-d74093b3917c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/udasecurity/Image/Image.iml" beforeDir="false" afterPath="$PROJECT_DIR$/udasecurity/Image/Image.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/udasecurity/Security/Security.iml" beforeDir="false" afterPath="$PROJECT_DIR$/udasecurity/Security/Security.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/udasecurity/udasecurity.iml" beforeDir="false" afterPath="$PROJECT_DIR$/udasecurity/udasecurity.iml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,6 +35,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1642987656277</updated>
+      <workItem from="1644283100969" duration="2000" />
     </task>
     <servers />
   </component>
