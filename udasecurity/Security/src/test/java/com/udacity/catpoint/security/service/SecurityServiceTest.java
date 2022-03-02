@@ -42,7 +42,7 @@ public class SecurityServiceTest {
         for (int i = 0; i < numberOfSensors; i++) {
             sensors.add(new Sensor("sensor#"+i, SensorType.DOOR));
         }
-        sensors.forEach(sensor1 -> sensor1.setActive(active));
+        sensors.forEach(s -> s.setActive(active));
         return sensors;
     }
 
@@ -145,6 +145,7 @@ public class SecurityServiceTest {
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
         securityService.setArmingStatus(armingStatus);
 
+//        verify(sensor).setActive(false);
         securityRepository.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
     }
 

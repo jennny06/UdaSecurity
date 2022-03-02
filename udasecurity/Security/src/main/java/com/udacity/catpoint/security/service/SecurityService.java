@@ -50,7 +50,7 @@ public class SecurityService {
             sensors.forEach(sensor -> changeSensorActivationStatus(sensor, false));
         }
         securityRepository.setArmingStatus(armingStatus);
-        statusListeners.forEach(statusListener -> statusListener.sensorStatusChanged());
+        statusListeners.forEach(sl -> sl.sensorStatusChanged());
     }
 
     /**
@@ -136,24 +136,7 @@ public class SecurityService {
                 setAlarmStatus(AlarmStatus.ALARM);
             }
         }
-//
-//        if (getAlarmStatus() != AlarmStatus.ALARM) {
-//            if(!sensor.getActive() && active) {
-//                handleSensorActivated();
-//            } else if (sensor.getActive() && !active) {
-//                handleSensorDeactivated();
-//            } else if (sensor.getActive() && active) {
-//                handleSensorActivated();
-//            }
-//        }else {
-//            if (getArmingStatus() == ArmingStatus.DISARMED) {
-//                handleSensorDeactivated();
-//            }
-//        }
-//
-//        if (getArmingStatus() == ArmingStatus.ARMED_HOME) {
-//            handleSensorDeactivated();
-//        }
+
         sensor.setActive(active);
         securityRepository.updateSensor(sensor);
     }
